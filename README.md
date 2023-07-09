@@ -60,6 +60,13 @@ Ensure that the CSV file path is correctly specified in the `csvFile` variable.
 
 The program includes predefined capacities for different slot categories. These capacities can be customized by updating the `initializeAmClassCapacities` and `initializePmClassCapacities` methods in the code.
 
+## Current Progress
+Currently, it can detect duplicates and register students into respective classes. Excess students are also recognized. However, the implementation to distribute the excess students is yet to be achieved, in addition to altering the CSV data.
+
+## Challenges and Future Work
+
+One challenge encountered was the distribution of excess students. Future work involves implementing a mechanism to assign these students to alternative slots based on availability. Additionally, considering potential alterations to the CSV data can help improve the registration process.
+
 ## Contributing
 
 Contributions are welcome! If you find any issues or have suggestions for improvements, feel free to submit a pull request or open an issue.
