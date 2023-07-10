@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class validateSlot {
     private static final String csvFile = "exampleResponse.csv"; // Replace with your CSV file path
@@ -219,44 +220,65 @@ public class validateSlot {
     }
 
     private static void printExcessStudentsForAMSession() {
+    System.out.println("Excess Students for AM Session:");
+    // Group students by AM slot
+    Map<String, List<Student>> studentsByAMSlot = excessStudentsForAMSession.stream()
+            .collect(Collectors.groupingBy(Student::getAmSlot));
 
-            System.out.println("Excess Students for AM Session:");
-            //number of excess students
-            System.out.println("Number of excess students: " + excessStudentsForAMSession.size());
+    int totalExcessStudentsAM = 0;
+
+    for (Map.Entry<String, List<Student>> entry : studentsByAMSlot.entrySet()) {
+        String amSlot = entry.getKey();
+        List<Student> students = entry.getValue();
+
+        System.out.println("AM Slot: " + amSlot);
+        int numExcessStudentsAM = students.size();
+        totalExcessStudentsAM += numExcessStudentsAM;
+        System.out.println("Number of excess students for this slot: " + numExcessStudentsAM);
+        System.out.println();
+
+        for (Student student : students) {
+            System.out.println("Name: " + student.getName());
+            System.out.println("Class: " + student.getStudentclass());
+            System.out.println("Timestamp: " + student.getTimestamp());
             System.out.println();
+        }
+    }
 
-            if (excessStudentsForAMSession.isEmpty()) {
-                System.out.println("No excess students found.");
-            } else {
-                for (Student student : excessStudentsForAMSession) {
-                    System.out.println("Name: " + student.getName());
-                    System.out.println("Class: " + student.getStudentclass());
-                    System.out.println("AM Slot: " + student.getAmSlot());
-                    //print timestamp
-                    System.out.println("Timestamp: " + student.getTimestamp());
-                    System.out.println();
-                }
-            }
+    System.out.println("Total Excess Students for AM Session: " + totalExcessStudentsAM);
+    System.out.println();
     }
 
     private static void printExcessStudentsForPMSession() {
-            System.out.println("Excess Students for PM Session:");
-            //number of excess students
-            System.out.println("Number of excess students: " + excessStudentsForAMSession.size());
+        System.out.println("Excess Students for PM Session:");
+        // Group students by PM slot
+        Map<String, List<Student>> studentsByPMSlot = excessStudentsForPMSession.stream()
+                .collect(Collectors.groupingBy(Student::getPmSlot));
+
+        int totalExcessStudentsPM = 0;
+
+        for (Map.Entry<String, List<Student>> entry : studentsByPMSlot.entrySet()) {
+            String pmSlot = entry.getKey();
+            List<Student> students = entry.getValue();
+
+            System.out.println("PM Slot: " + pmSlot);
+            int numExcessStudentsPM = students.size();
+            totalExcessStudentsPM += numExcessStudentsPM;
+            System.out.println("Number of excess students for this slot: " + numExcessStudentsPM);
             System.out.println();
 
-            if (excessStudentsForPMSession.isEmpty()) {
-                System.out.println("No excess students found.");
-            } else {
-                for (Student student : excessStudentsForPMSession) {
-                    System.out.println("Name: " + student.getName());
-                    System.out.println("Class: " + student.getStudentclass());
-                    System.out.println("PM Slot: " + student.getPmSlot());
-                    System.out.println("Timestamp: " + student.getTimestamp());
-                    System.out.println();
-                }
+            for (Student student : students) {
+                System.out.println("Name: " + student.getName());
+                System.out.println("Class: " + student.getStudentclass());
+                System.out.println("Timestamp: " + student.getTimestamp());
+                System.out.println();
             }
+        }
+
+        System.out.println("Total Excess Students for PM Session: " + totalExcessStudentsPM);
+        System.out.println();
     }
+
 
     private static Map<String, Integer> initializeAmClassCapacities() {
         Map<String, Integer> amClassCapacities = new HashMap<>();
