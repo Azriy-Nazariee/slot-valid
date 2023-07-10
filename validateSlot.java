@@ -54,13 +54,17 @@ public class validateSlot {
                     System.out.println();
                     break;
                 case 6:
+                    summarizeRegistrationProcess();
+                    System.out.println();
+                    break;
+                case 7:
                     System.out.println("Exiting...");
                     System.out.println();
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
-        } while (choice != 6);
+        } while (choice != 7);
 
         scanner.close();
     }
@@ -71,44 +75,46 @@ public class validateSlot {
         System.out.println("3) Print Name List for PM Session");
         System.out.println("4) Print Excess Students for AM Session");
         System.out.println("5) Print Excess Students for PM Session");
-        System.out.println("6) Exit");
+        System.out.println("6) Summarize Registration Process");
+        System.out.println("7) Exit");
     }
 
     private static void printDuplicateStudents() {
-        Set<String> duplicateStudents = new HashSet<>();
-
+        duplicateStudents.clear(); // Clear the list before populating it again
+    
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             // Skip the header line if it exists
             br.readLine();
-
+    
             String line;
-
+    
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(csvSplitBy);
-
+    
                 if (data.length >= 8) { // Ensure the array has enough elements
                     String amSlot = data[6].trim(); // Assuming AM Slot Selection is in the seventh column
                     String pmSlot = data[7].trim(); // Assuming PM Slot Selection is in the eighth column
-
+                    String studentclass = data[3].trim(); // Assuming Class is in the 4th column
+    
                     if (amSlot.equals(pmSlot)) {
                         String fullName = data[2].trim(); // Assuming Full Name is in the third column
-                        duplicateStudents.add(fullName);
+                        duplicateStudents.add(new Student(fullName, studentclass, "", "", ""));
                     }
                 }
             }
-
+    
             System.out.println("Number of Duplicate Students: " + duplicateStudents.size());
             System.out.println();
             System.out.println("Duplicate Students:");
-            for (String fullName : duplicateStudents) {
-                System.out.println(fullName);
-                //add duplicate students to arraylist
-                duplicateStudents.add(fullName);
+            for (Student student : duplicateStudents) {
+                System.out.println("Name: " + student.getName());
+                System.out.println("Class: " + student.getStudentclass());
+                System.out.println();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }    
 
     private static boolean isSlotAvailable(String slot, Map<String, Integer> classCapacities) {
     int count = Collections.frequency(excessStudentsForAMSession, slot);
@@ -345,4 +351,122 @@ public class validateSlot {
         }
     }
 
+    private static void summarizeRegistrationProcess() {
+        System.out.println("Registration Process Summary");
+        System.out.println("============================");
+
+        // Duplicate Students
+        
+        System.out.println("Duplicate Students:");
+        System.out.println("-------------------");
+        System.out.println();
+        //print the number of duplicate students
+        System.out.println("Number of duplicate students: " + duplicateStudents.size());
+        System.out.println();
+        //the name of the duplicate students
+        for (Student student : duplicateStudents) {
+            System.out.println("Name: " + student.getName());
+            System.out.println("Class: " + student.getStudentclass());
+            System.out.println();
+        }
+    
+        // AM Session Summary
+        System.out.println("AM Session:");
+        System.out.println("-----------");
+        System.out.println("Slot Status:");
+        System.out.println();
+    
+        for (String slot : amClassCapacities.keySet()) {
+            int capacity = amClassCapacities.get(slot);
+            int availableSpots = getAvailableSpotsAM(slot);
+            System.out.println(slot + ": " + (availableSpots > 0 ? "Available (" + availableSpots + " spots left)" : "Full"));
+            System.out.println();
+        }
+    
+        System.out.println();
+    
+        // Excess Students for AM Session
+        System.out.println("Excess Students:");
+        System.out.println("----------------");
+        System.out.println();
+    
+        if (excessStudentsForAMSession.isEmpty()) {
+            System.out.println("No excess students for the AM session.");
+        } else {
+            System.out.println("Number of excess students: " + excessStudentsForAMSession.size());
+            System.out.println();
+            System.out.println("Excess Students by Slot:");
+            System.out.println();
+    
+            Map<String, List<Student>> excessStudentsBySlotAM = excessStudentsForAMSession.stream()
+                    .collect(Collectors.groupingBy(Student::getAmSlot));
+    
+            for (Map.Entry<String, List<Student>> entry : excessStudentsBySlotAM.entrySet()) {
+                String slot = entry.getKey();
+                List<Student> students = entry.getValue();
+    
+                System.out.println("Slot: " + slot);
+                System.out.println("Number of excess students: " + students.size());
+                System.out.println();
+            }
+        }
+    
+        System.out.println();
+    
+        // PM Session Summary
+        System.out.println("PM Session:");
+        System.out.println("-----------");
+        System.out.println("Slot Status:");
+        System.out.println();
+    
+        for (String slot : pmClassCapacities.keySet()) {
+            int capacity = pmClassCapacities.get(slot);
+            int availableSpots = getAvailableSpotsPM(slot);
+            System.out.println(slot + ": " + (availableSpots > 0 ? "Available (" + availableSpots + " spots left)" : "Full"));
+            System.out.println();
+        }
+    
+        System.out.println();
+    
+        // Excess Students for PM Session
+        System.out.println("Excess Students:");
+        System.out.println("----------------");
+    
+        if (excessStudentsForPMSession.isEmpty()) {
+            System.out.println("No excess students for the PM session.");
+        } else {
+            System.out.println("Number of excess students: " + excessStudentsForPMSession.size());
+            System.out.println();
+            System.out.println("Excess Students by Slot:");
+            System.out.println();
+    
+            Map<String, List<Student>> excessStudentsBySlotPM = excessStudentsForPMSession.stream()
+                    .collect(Collectors.groupingBy(Student::getPmSlot));
+    
+            for (Map.Entry<String, List<Student>> entry : excessStudentsBySlotPM.entrySet()) {
+                String slot = entry.getKey();
+                List<Student> students = entry.getValue();
+    
+                System.out.println("Slot: " + slot);
+                System.out.println("Number of excess students: " + students.size());
+                System.out.println();
+            }
+        }
+    }
+    
+    private static int getAvailableSpotsAM(String slot) {
+        int capacity = amClassCapacities.getOrDefault(slot, 0);
+        int excessStudents = (int) excessStudentsForAMSession.stream()
+                .filter(student -> student.getAmSlot().equals(slot))
+                .count();
+        return Math.max(0, capacity - excessStudents);
+    }
+    
+    private static int getAvailableSpotsPM(String slot) {
+        int capacity = pmClassCapacities.getOrDefault(slot, 0);
+        int excessStudents = (int) excessStudentsForPMSession.stream()
+                .filter(student -> student.getPmSlot().equals(slot))
+                .count();
+        return Math.max(0, capacity - excessStudents);
+    }    
 }
